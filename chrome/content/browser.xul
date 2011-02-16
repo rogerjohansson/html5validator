@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://html5validator/skin/skin.css" type="text/css"?> 
+<overlay id="sample" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+		<script src="html5validator.js" />
+
+		<statusbar id="status-bar">
+			<statusbarpanel id="html5validator-status-bar" class="statusbarpanel-iconic-text" src="chrome://html5validator/skin/html5-dimmed.png" tooltiptext="HTML5 Validator" label="" />
+		</statusbar>
+
+</overlay>

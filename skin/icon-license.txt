@@ -1,0 +1,4 @@
+The icons are based on the W3C HTML5 logo [1], which is licensed under Creative Commons Attribution 3.0 Unported.
+
+[1] http://www.w3.org/html/logo/
+[2] http://creativecommons.org/licenses/by/3.0/

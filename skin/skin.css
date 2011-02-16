@@ -1,0 +1,7 @@
+#html5validator-status-bar {
+	margin: 2px 0;
+}
+#html5validator-status-bar.errors {
+	color:#600;
+	font-weight:bold;
+}
