@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>html5validator@456bereastreet.com</em:id>
 		<em:name>HTML5 Validator</em:name>
-		<em:version>1.0</em:version>
+		<em:version>1.1</em:version>
 		<em:type>2</em:type>
 		<em:creator>Roger Johansson</em:creator>
-		<em:description>Validates HTML documents with a local instance of Validator.nu</em:description>
-		<em:homepageURL>http://www.456bereastreet.com/</em:homepageURL>
+		<em:contributor>Valentin Agachi</em:contributor>
+		<em:description>Validates HTML documents with Validator.nu (online or local instance)</em:description>
+		<em:homepageURL>https://github.com/rogerjohansson/html5validator</em:homepageURL>
 		<em:optionsURL>chrome://html5validator/content/options.xul</em:optionsURL>
+		<em:iconURL>chrome://html5validator/skin/html5-32x32.png</em:iconURL>
 
 		<em:targetApplication>
 			<Description>
