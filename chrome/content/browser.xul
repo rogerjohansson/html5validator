@@ -4,8 +4,20 @@
 	
 	<script src="html5validator.js" />
 
+	<popupset id="mainPopupSet">
+		<menupopup id="html5validator-menupopup">
+			<menuitem label="Options" oncommand="html5validator.showOptions()"/>
+		</menupopup>
+	</popupset>
+
 	<statusbar id="status-bar">
-		<statusbarpanel id="html5validator-status-bar" class="statusbarpanel-iconic-text" src="chrome://html5validator/skin/html5-dimmed.png" tooltiptext="HTML5 Validator" label="" />
+		<statusbarpanel 
+			id="html5validator-status-bar"
+			class="statusbarpanel-iconic-text"
+			contextmenu="html5validator-menupopup"
+			src="chrome://html5validator/skin/html5-dimmed.png"
+			tooltiptext="HTML5 Validator"
+			label="" />
 	</statusbar>
 
 </overlay>

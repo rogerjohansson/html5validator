@@ -7,3 +7,4 @@ CHANGELOG
 
 * 1.0 - 2011-02-16 - first release
 * 1.1 - 2011-02-17 - NEW: gets HTML source from cache, caches validation results per tab
+* 1.2 - 2011-02-18 - NEW: validate only whitelisted domains

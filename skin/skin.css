@@ -2,6 +2,11 @@
 	margin: 2px 0;
 }
 #html5validator-status-bar.errors {
-	color:#600;
-	font-weight:bold;
+	color: #600;
+	font-weight: bold;
+}
+
+
+#html5validator-prefwindow label {
+	font-weight: bold;
 }

@@ -1,15 +1,49 @@
 var html5validator = function()
 {
-	var prefBranch = Components.classes["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService).getBranch("extensions.html5validator."),
-		validatorURL = prefBranch.getCharPref("validatorURL"),
-		debug = prefBranch.getBoolPref("debug"),
+	var preferences = {},
+		loadPreferences = function()
+		{
+			var prefBranch = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.html5validator."),
+				whitelist = prefBranch.getCharPref("domainsWhitelist"),
+				domains = whitelist.split('\n');
+
+			// fix domains, accepts: domain OR http://domain OR https://domain
+			for (var i = 0; i < domains.length; i++)
+			{
+				domains[i] = domains[i].replace(/(https?:\/\/)?(www\.)?([^\s\/]+)\/?/i, function(r, r1, r2, r3){
+					return (r1.length ? r1.toLowerCase() : 'http://') + r3.toLowerCase() + '/';
+				});
+			}
+
+			preferences = {
+				validatorURL: prefBranch.getCharPref("validatorURL"),
+				domainsWhitelist: domains,
+				debug: prefBranch.getBoolPref("debug"),
+			};
+			
+		},
+		// observe preferences changes
+		preferencesObserver =
+		{
+			register: function()
+			{
+				var prefService = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+				this._branch = prefService.getBranch("extensions.html5validator.");
+				this._branch.QueryInterface(Components.interfaces.nsIPrefBranch2);
+				this._branch.addObserver("", this, false);
+			},
+			observe: function(aSubject, aTopic, aData)
+			{
+				if (aTopic != "nsPref:changed")
+					return;
+				loadPreferences();
+			}
+		},
 
 		console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
-		statusBarPanel, activeDocument,
-
 		log = function(msg)
 		{
-			if (!console || !debug) return;
+			if (!console || !preferences.debug) return;
 			console.logStringMessage('html5validator: ' + msg);
 		};
 
@@ -55,25 +89,44 @@ var html5validator = function()
 	};
 
 
+	var statusBarPanel, activeDocument,
+	
+	isValidDomain = function(url)
+	{
+		if (!url.length || url.match(/^about:/) || url == preferences.validatorURL)
+			return false;
+		
+		for (var i = 0; i < preferences.domainsWhitelist.length; i++)
+		{
+			var d = preferences.domainsWhitelist[i];
+			if (d == url.replace('://www.', '://').substr(0, d.length))
+				return true;
+
+		}
+
+		return false;
+	},
+
 
 	// adapted from "Html Validator" extension
-	var validateDocHTML = function(frame)
+	validateDocHTML = function(frame)
 	{
 		if (!frame.document)
 			return;
 
-		if (frame.document.validatorCache != null)
+		activeDocument = frame.document;
+		var url = activeDocument.URL || '';
+
+		if (activeDocument.validatorCache != null)
 		{
-			var cache = frame.document.validatorCache;
+			var cache = activeDocument.validatorCache;
+
 			updateStatusBar(cache['errors'], cache['warnings']);
 		}
 	    else
 		{
-			activeDocument = frame.document;
-
-			var url = activeDocument.URL || '';
-
-			if (!url.length || url.match(/^about:/) || url == validatorURL) {
+			if (!isValidDomain(url))
+			{
 				updateStatusBar(0, 0, "notrun");
 				return;
 			}
@@ -153,7 +206,6 @@ var html5validator = function()
 		scriptableStream.init( stream );
 		var s = '', s2 = '';
 
-		// XXX Maybe there should be a flag for controlling this ?
 		while (scriptableStream.available() > 0)
 		{
 			s += scriptableStream.read(scriptableStream.available());
@@ -199,7 +251,9 @@ var html5validator = function()
 			statusBarPanel.className = "statusbarpanel-iconic-text errors";
 			statusBarPanel.addEventListener("click", showValidationResults, false);
 			statusBarPanel.tooltipText = "HTML5 Validator: Click to show validation details in a new window";
-		} else {
+		}
+		else
+		{
 			statusBarPanel.removeEventListener("click", showValidationResults, false);
 			statusBarPanel.className = "statusbarpanel-iconic-text";
 			statusBarPanel.label = "";
@@ -263,7 +317,7 @@ var html5validator = function()
 		};
 
 		// Send document to validator and tell it to return results in JSON format
-		xhr.open("POST", validatorURL + "?out=json", true);
+		xhr.open("POST", preferences.validatorURL + "?out=json", true);
 		xhr.setRequestHeader("Content-Type", "text/html;charset=UTF-8");
 		xhr.send(html);
 	},
@@ -271,24 +325,27 @@ var html5validator = function()
 	// Create a temporary form to post the document data to the validator.
 	showValidationResults = function()
 	{
-		var validationForm = content.document.createElement("form");
-		validationForm.method = "post";
-		validationForm.enctype = "multipart/form-data";
-		validationForm.action = validatorURL;
-		validationForm.target = "_blank";
+		var form = content.document.createElement("form");
+		form.method = "post";
+		form.enctype = "multipart/form-data";
+		form.action = preferences.validatorURL;
+		form.target = "_blank";
 		var docContent = content.document.createElement('textarea');
 		docContent.name = "content";
 		docContent.value = getHTMLFromCache(getActiveDocument());
-		validationForm.appendChild(docContent);
+		form.appendChild(docContent);
 		var body = content.document.getElementsByTagName("body")[0];
-		body.appendChild(validationForm);
-		validationForm.submit();
-		body.removeChild(validationForm);
+		body.appendChild(form);
+		form.submit();
+		body.removeChild(form);
 	};
+
 
 	return {
 		init: function ()
 		{
+			loadPreferences();
+
 			gBrowser.addProgressListener(html5validatorListener);
 
 			var oObsService = Components.classes["@mozilla.org/observer-service;1"].getService();
@@ -296,6 +353,13 @@ var html5validator = function()
 			oObsInterface.addObserver(html5validatorObserver, "EndDocumentLoad", false);
 
 			statusBarPanel = document.getElementById('html5validator-status-bar');
+
+			preferencesObserver.register();
+		},
+		
+		showOptions: function()
+		{
+			window.openDialog("chrome://html5validator/content/options.xul", "", null)
 		}
 	};
 }();
