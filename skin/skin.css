@@ -10,3 +10,7 @@
 #html5validator-prefwindow label {
 	font-weight: bold;
 }
+#html5validator-prefwindow row {
+	padding-top: 5px;
+	padding-bottom: 5px;
+}

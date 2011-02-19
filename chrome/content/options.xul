@@ -37,8 +37,9 @@
 					</vbox>
 					<textbox id="domainsWhitelist" preference="pref-domainsWhitelist" multiline="true" cols="30" rows="10" newlines="stripsurroundingwhitespace" wrap="off"/>
 				</row>
+				<description>If no domains are whilelisted, then all URLs will be validated</description>
 				<row>
-					<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors" checked="true"/>
+					<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors"/>
 				</row>
 			</rows>
 		</grid>

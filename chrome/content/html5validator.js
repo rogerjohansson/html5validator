@@ -5,7 +5,7 @@ var html5validator = function()
 		{
 			var prefBranch = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService).getBranch("extensions.html5validator."),
 				whitelist = prefBranch.getCharPref("domainsWhitelist"),
-				domains = whitelist.split('\n');
+				domains = (whitelist.length ? whitelist.split('\n') : []);
 
 			// fix domains, accepts: domain OR http://domain OR https://domain
 			for (var i = 0; i < domains.length; i++)
@@ -21,7 +21,6 @@ var html5validator = function()
 				debug: prefBranch.getBoolPref("debug"),
 				ignoreXHTMLErrors: prefBranch.getBoolPref("ignoreXHTMLErrors")
 			};
-			
 		},
 		// observe preferences changes
 		preferencesObserver =
@@ -92,10 +91,16 @@ var html5validator = function()
 
 	var statusBarPanel, activeDocument,
 	
-	isValidDomain = function(url)
+	isWhitelistDomain = function(url)
 	{
+		log('isWhitelistDomain() ' + url + ' - ' + preferences.domainsWhitelist.length);
+
 		if (!url.length || url.match(/^about:/) || url == preferences.validatorURL)
 			return false;
+
+		// if no domains whitelisted, then validate all URLs
+		if (!preferences.domainsWhitelist.length)
+			return true;
 		
 		for (var i = 0; i < preferences.domainsWhitelist.length; i++)
 		{
@@ -106,7 +111,7 @@ var html5validator = function()
 		}
 
 		return false;
-	};
+	},
 
 
 	// adapted from "Html Validator" extension
@@ -126,7 +131,7 @@ var html5validator = function()
 		}
 	    else
 		{
-			if (!isValidDomain(url))
+			if (!isWhitelistDomain(url))
 			{
 				updateStatusBar(0, 0, "notrun");
 				return;
@@ -140,12 +145,12 @@ var html5validator = function()
 				}
 			}
 		}
-	};
+	},
 	
 	getActiveDocument = function()
 	{
 		return window.content.document;
-	};
+	},
 	
 	// adapted from "Html Validator" extension
 	getHTMLFromCache = function(doc)
@@ -226,7 +231,7 @@ var html5validator = function()
 		}
 
 		return s2;
-	};
+	},
 
 	updateStatusBar = function(errors, warnings, status)
 	{
@@ -278,7 +283,7 @@ var html5validator = function()
 					statusBarPanel.tooltipText = "HTML5 Validator: No errors!";
 			}
 		}
-	};
+	},
 
 	validateDoc = function(html)
 	{
@@ -330,7 +335,7 @@ var html5validator = function()
 		xhr.open("POST", preferences.validatorURL + "?out=json", true);
 		xhr.setRequestHeader("Content-Type", "text/html;charset=UTF-8");
 		xhr.send(html);
-	};
+	},
 
 	// Create a temporary form to post the document data to the validator.
 	showValidationResults = function()
