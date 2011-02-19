@@ -18,7 +18,8 @@ var html5validator = function()
 			preferences = {
 				validatorURL: prefBranch.getCharPref("validatorURL"),
 				domainsWhitelist: domains,
-				debug: prefBranch.getBoolPref("debug")
+				debug: prefBranch.getBoolPref("debug"),
+				ignoreXHTMLErrors: prefBranch.getBoolPref("ignoreXHTMLErrors")
 			};
 			
 		},
@@ -293,9 +294,18 @@ var html5validator = function()
 				else {
 					// Check how many errors and warnings were returned
 					var messages = response.messages.length,
+						message,
 						errors = 0, warnings = 0;
 					for (var i = 0; i < messages; i++) {
 						if (response.messages[i].type == "error") {
+							// Do not count errors caused by an XHTML Doctype.
+							// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
+							if (preferences.ignoreXHTMLErrors) {
+								message = response.messages[i];
+								if ((message.message.match(/^Legacy doctype./i) && message.extract.match(/<!DOCTYPE html PUBLIC \"-\/\/W3C\/\/DTD XHTML 1.(1|0 Strict|0 Transitional)\/\/EN/i)) || message.message.match(/^Attribute “xml:lang” not allowed/i)) {
+									continue;
+								}
+							}
 							errors++;
 						} else if (response.messages[i].subType == "warning") {
 							warnings++;

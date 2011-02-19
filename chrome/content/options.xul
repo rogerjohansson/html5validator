@@ -12,6 +12,7 @@
 		<preferences>
 			<preference id="pref-validatorURL" name="extensions.html5validator.validatorURL" type="string"/>
 			<preference id="pref-domainsWhitelist" name="extensions.html5validator.domainsWhitelist" type="string"/>
+			<preference id="pref-ignoreXHTMLErrors" name="extensions.html5validator.ignoreXHTMLErrors" type="bool"/>
 		</preferences>
 		
 		<grid>
@@ -35,6 +36,9 @@
 						</vbox>
 					</vbox>
 					<textbox id="domainsWhitelist" preference="pref-domainsWhitelist" multiline="true" cols="30" rows="10" newlines="stripsurroundingwhitespace" wrap="off"/>
+				</row>
+				<row>
+					<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors" checked="true"/>
 				</row>
 			</rows>
 		</grid>
