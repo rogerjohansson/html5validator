@@ -18,7 +18,7 @@ var html5validator = function()
 			preferences = {
 				validatorURL: prefBranch.getCharPref("validatorURL"),
 				domainsWhitelist: domains,
-				debug: prefBranch.getBoolPref("debug"),
+				debug: prefBranch.getBoolPref("debug")
 			};
 			
 		},
@@ -105,7 +105,7 @@ var html5validator = function()
 		}
 
 		return false;
-	},
+	};
 
 
 	// adapted from "Html Validator" extension
@@ -139,12 +139,12 @@ var html5validator = function()
 				}
 			}
 		}
-	},
+	};
 	
 	getActiveDocument = function()
 	{
 		return window.content.document;
-	}
+	};
 	
 	// adapted from "Html Validator" extension
 	getHTMLFromCache = function(doc)
@@ -225,7 +225,7 @@ var html5validator = function()
 		}
 
 		return s2;
-	},
+	};
 
 	updateStatusBar = function(errors, warnings, status)
 	{
@@ -277,7 +277,7 @@ var html5validator = function()
 					statusBarPanel.tooltipText = "HTML5 Validator: No errors!";
 			}
 		}
-	},
+	};
 
 	validateDoc = function(html)
 	{
@@ -320,7 +320,7 @@ var html5validator = function()
 		xhr.open("POST", preferences.validatorURL + "?out=json", true);
 		xhr.setRequestHeader("Content-Type", "text/html;charset=UTF-8");
 		xhr.send(html);
-	},
+	};
 
 	// Create a temporary form to post the document data to the validator.
 	showValidationResults = function()
@@ -359,7 +359,7 @@ var html5validator = function()
 		
 		showOptions: function()
 		{
-			window.openDialog("chrome://html5validator/content/options.xul", "", null)
+			window.openDialog("chrome://html5validator/content/options.xul", "", null);
 		}
 	};
 }();
