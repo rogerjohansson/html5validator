@@ -61,6 +61,8 @@ var html5validator = function()
 
 		onLocationChange: function(aProgress, aRequest, aURI)
 		{
+			log('onLocationChange()');
+			updateStatusBar(0, 0, "notrun");
 			validateDocHTML(window.content);
 		},
 
@@ -255,12 +257,10 @@ var html5validator = function()
 			statusBarPanel.label = errorText;
 			statusBarPanel.src = "chrome://html5validator/skin/html5-error-red.png";
 			statusBarPanel.className = "statusbarpanel-iconic-text errors";
-			statusBarPanel.addEventListener("click", showValidationResults, false);
 			statusBarPanel.tooltipText = "HTML5 Validator: Click to show validation details in a new window";
 		}
 		else
 		{
-			statusBarPanel.removeEventListener("click", showValidationResults, false);
 			statusBarPanel.className = "statusbarpanel-iconic-text";
 			statusBarPanel.label = "";
 			switch (status) {
@@ -337,6 +337,19 @@ var html5validator = function()
 		xhr.send(html);
 	},
 
+	statusBarPanelClick = function(ev)
+	{
+		log('statusBarPanelClick() - button: ' + ev.button);
+		if (ev.button == 0)
+		{
+			var doc = getActiveDocument();
+			if (doc && doc.validatorCache)
+			{
+				showValidationResults();
+			}
+		}
+	},
+
 	// Create a temporary form to post the document data to the validator.
 	showValidationResults = function()
 	{
@@ -368,6 +381,7 @@ var html5validator = function()
 			oObsInterface.addObserver(html5validatorObserver, "EndDocumentLoad", false);
 
 			statusBarPanel = document.getElementById('html5validator-status-bar');
+			statusBarPanel.addEventListener("click", statusBarPanelClick, false);
 
 			preferencesObserver.register();
 		},
