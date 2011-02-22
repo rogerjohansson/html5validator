@@ -12,37 +12,50 @@
 		<preferences>
 			<preference id="pref-validatorURL" name="extensions.html5validator.validatorURL" type="string"/>
 			<preference id="pref-domainsWhitelist" name="extensions.html5validator.domainsWhitelist" type="string"/>
+			<preference id="pref-useTrigger" name="extensions.html5validator.useTrigger" type="bool"/>
 			<preference id="pref-ignoreXHTMLErrors" name="extensions.html5validator.ignoreXHTMLErrors" type="bool"/>
 			<preference id="pref-allowAccessibilityFeatures" name="extensions.html5validator.allowAccessibilityFeatures" type="bool"/>
 		</preferences>
 		
-		<grid>
-			<columns>
-				<column flex="1"/>
-				<column flex="2"/>
-			</columns>
-			<rows>
-				<row>
-					<label accesskey="U" control="validatorURL">Validator URL</label>
-					<textbox id="validatorURL" preference="pref-validatorURL"/>
-				</row>
-				<row>
-					<vbox>
-						<label accesskey="D" control="domainsWhitelist">Domains whitelist</label>
-						<spacer flex="1"/>
+		<groupbox>
+			<caption label="Settings"/>
+			<grid>
+				<columns>
+					<column flex="1"/>
+					<column flex="2"/>
+				</columns>
+				<rows>
+					<row>
+						<label accesskey="U" control="validatorURL">Validator URL</label>
+						<textbox id="validatorURL" preference="pref-validatorURL"/>
+					</row>
+					<row>
 						<vbox>
-							<description>Enter one domain per line</description>
-							<description>http:// prefix is optional</description>
-							<description>https:// prefix is supported</description>
+							<label accesskey="D" control="domainsWhitelist">Domains whitelist</label>
+							<spacer flex="1"/>
+							<vbox>
+								<description>Enter one domain per line</description>
+								<description>http:// prefix is optional</description>
+								<description>https:// prefix is supported</description>
+							</vbox>
 						</vbox>
-					</vbox>
-					<textbox id="domainsWhitelist" preference="pref-domainsWhitelist" multiline="true" cols="30" rows="10" newlines="stripsurroundingwhitespace" wrap="off"/>
-				</row>
-				<description>If no domains are whilelisted, then all URLs will be validated</description>
-				<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors"/>
-				<checkbox label="Allow HTML 4.01 accessibility features (summary, abbr, longdesc, scope)" id="allowAccessibilityFeatures" preference="pref-allowAccessibilityFeatures"/>
-			</rows>
-		</grid>
+						<textbox id="domainsWhitelist" preference="pref-domainsWhitelist" multiline="true" cols="30" rows="10" newlines="stripsurroundingwhitespace" wrap="off"/>
+					</row>
+					<description>If no domains are whilelisted, then all URLs will be validated</description>
+				</rows>
+			</grid>
+		</groupbox>
+
+		<groupbox>
+			<caption label="Interface"/>
+			<checkbox label="Validate only on request (on left-click)" id="useTrigger" preference="pref-useTrigger"/>
+		</groupbox>
+
+		<groupbox>
+			<caption label="Error Filtering"/>
+			<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors"/>
+			<checkbox label="Allow HTML 4.01 accessibility features (summary, abbr, longdesc, scope)" id="allowAccessibilityFeatures" preference="pref-allowAccessibilityFeatures"/>
+		</groupbox>
 		
 	</prefpane>
  

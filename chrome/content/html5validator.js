@@ -18,6 +18,7 @@ var html5validator = function()
 			preferences = {
 				validatorURL: prefBranch.getCharPref("validatorURL"),
 				domainsWhitelist: domains,
+				useTrigger: prefBranch.getBoolPref("useTrigger"),
 				debug: prefBranch.getBoolPref("debug"),
 				ignoreXHTMLErrors: prefBranch.getBoolPref("ignoreXHTMLErrors"),
 				allowAccessibilityFeatures: prefBranch.getBoolPref("allowAccessibilityFeatures")
@@ -64,7 +65,7 @@ var html5validator = function()
 		{
 			log('onLocationChange()');
 			updateStatusBar(0, 0, "notrun");
-			validateDocHTML(window.content);
+			validateDocHTML(window.content, false);
 		},
 
 		onStateChange: function(aWebProgress, aRequest, aFlag, aStatus){},
@@ -77,14 +78,13 @@ var html5validator = function()
 	var html5validatorObserver =
 	{
 		busy: false,
-
 		observe: function(subject, topic, data) 
 		{
 			if (!this.busy)
 			{
 				this.busy = true;
 
-				validateDocHTML(window.content);
+				validateDocHTML(window.content, false);
 
 				this.busy = false;
 			}
@@ -118,7 +118,7 @@ var html5validator = function()
 
 
 	// adapted from "Html Validator" extension
-	validateDocHTML = function(frame)
+	validateDocHTML = function(frame, triggered)
 	{
 		if (!frame.document)
 			return;
@@ -134,6 +134,9 @@ var html5validator = function()
 		}
 	    else
 		{
+			if (preferences.useTrigger && !triggered)
+				return;
+
 			if (!isWhitelistDomain(url))
 			{
 				updateStatusBar(0, 0, "notrun");
@@ -174,8 +177,7 @@ var html5validator = function()
 			var ifRequestor = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
 			webNav = ifRequestor.getInterface(Components.interfaces.nsIWebNavigation);
 		} catch(err) {
-			// If nsIWebNavigation cannot be found, just get the one for the whole window...
-			webNav = getWebNavigation();
+			return '';
 		}
 
 		// Get the 'PageDescriptor' for the current document. This allows the
@@ -183,11 +185,12 @@ var html5validator = function()
 		// the network...
 		try
 		{
-			var PageLoader = webNav.QueryInterface(Components.interfaces.nsIWebPageDescriptor);
-			var pageCookie = PageLoader.currentDescriptor;     
-			var shEntry = pageCookie.QueryInterface(Components.interfaces.nsISHEntry);
+			var PageLoader = webNav.QueryInterface(Components.interfaces.nsIWebPageDescriptor),
+				PageCookie = PageLoader.currentDescriptor,
+				shEntry = PageCookie.QueryInterface(Components.interfaces.nsISHEntry);
 		} catch(err) {
-		}  
+			return '';
+		}
 
 		// Part 2 : open a nsIChannel to get the HTML of the doc
 		var url = doc.URL;
@@ -205,14 +208,14 @@ var html5validator = function()
 			var cacheChannel = channel.QueryInterface(Components.interfaces.nsICachingChannel);
 			cacheChannel.cacheKey = shEntry.cacheKey;
 		} 
-		catch(e) 
-		{
+		catch(e) {
+			return '';
 		}
 
 		var stream = channel.open();
 
 		const scriptableStream = Components.classes["@mozilla.org/scriptableinputstream;1"].createInstance(Components.interfaces.nsIScriptableInputStream);
-		scriptableStream.init( stream );
+		scriptableStream.init(stream);
 		var s = '', s2 = '';
 
 		while (scriptableStream.available() > 0)
@@ -229,8 +232,8 @@ var html5validator = function()
 			ucConverter.charset = urlCharset;
 			s2 = ucConverter.ConvertToUnicode(s);
 		}
-		catch(e) 
-		{
+		catch(e) {
+			return '';
 		}
 
 		return s2;
@@ -265,6 +268,11 @@ var html5validator = function()
 			statusBarPanel.className = "statusbarpanel-iconic-text";
 			statusBarPanel.label = "";
 			switch (status) {
+				case "running":
+					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
+					statusBarPanel.label = "Validating...";
+					statusBarPanel.tooltipText = "HTML5 Validator: Document not validated";
+					break;
 				case "notrun":
 					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
 					statusBarPanel.tooltipText = "HTML5 Validator: Document not validated";
@@ -288,6 +296,8 @@ var html5validator = function()
 
 	validateDoc = function(html)
 	{
+		updateStatusBar(0, 0, "running");
+
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
@@ -354,15 +364,27 @@ var html5validator = function()
 		xhr.send(html);
 	},
 
-	statusBarPanelClick = function(ev)
+	statusBarPanelClick = function(event)
 	{
-		log('statusBarPanelClick() - button: ' + ev.button);
-		if (ev.button == 0)
+		// event.button: 0 - left, 1 - middle, 2 - right
+		if (event.button == 0)
 		{
 			var doc = getActiveDocument();
-			if (doc && doc.validatorCache)
+			if (!doc)
+				return;
+
+			if (preferences.useTrigger)
 			{
-				showValidationResults();
+				// On first click there are no cached results - validate, on following clicks - show cached results
+				if (doc.validatorCache)
+					showValidationResults();
+				else
+					validateDocHTML(window.content, true);
+			}
+			else
+			{
+				if (doc.validatorCache)
+					showValidationResults();
 			}
 		}
 	},
