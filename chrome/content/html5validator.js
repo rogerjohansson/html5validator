@@ -313,6 +313,7 @@ var html5validator = function()
 						message,
 						errors = 0, warnings = 0;
 					for (var i = 0; i < messages; i++) {
+						// TODO: Remove hidden errors and warnings from the cached results to prevent them from showing up on the results page.
 						if (response.messages[i].type == "error") {
 							// Do not count errors caused by an XHTML Doctype.
 							// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
@@ -346,6 +347,7 @@ var html5validator = function()
 					updateStatusBar(errors, warnings);
 
 					activeDocument.validatorCache = {
+						"messages": response.messages,
 						"errors": errors,
 						"warnings": warnings
 					};
@@ -376,35 +378,63 @@ var html5validator = function()
 			if (preferences.useTrigger)
 			{
 				// On first click there are no cached results - validate, on following clicks - show cached results
-				if (doc.validatorCache)
+				if (doc.validatorCache && (doc.validatorCache['errors'] || doc.validatorCache['warnings']))
 					showValidationResults();
 				else
 					validateDocHTML(window.content, true);
 			}
 			else
 			{
-				if (doc.validatorCache)
+				if (doc.validatorCache && (doc.validatorCache['errors'] || doc.validatorCache['warnings']))
 					showValidationResults();
 			}
 		}
 	},
 
-	// Create a temporary form to post the document data to the validator.
-	showValidationResults = function()
+	// Create a new document, open it in a new tab and display the cached validation results.
+	showValidationResults = function(messages)
 	{
-		var form = content.document.createElement("form");
-		form.method = "post";
-		form.enctype = "multipart/form-data";
-		form.action = preferences.validatorURL;
-		form.target = "_blank";
-		var docContent = content.document.createElement('textarea');
-		docContent.name = "content";
-		docContent.value = getHTMLFromCache(getActiveDocument());
-		form.appendChild(docContent);
-		var body = content.document.getElementsByTagName("body")[0];
-		body.appendChild(form);
-		form.submit();
-		body.removeChild(form);
+		var doc = getActiveDocument();
+		if (!doc || !doc.validatorCache) {
+			return;
+		}
+
+		// Create a new document in a new tab
+		var request = new XMLHttpRequest();
+		getBrowser().selectedTab = getBrowser().addTab('');
+		request.open("get", "about:blank", false);
+		request.send(null);
+		var generatedDocument = window.content.document;
+
+		docBody = generatedDocument.getElementsByTagName('body')[0];
+		docHead = generatedDocument.getElementsByTagName('head')[0];
+
+		docTitle = 'Validation results for ' + doc.URL + ': ' + doc.validatorCache['errors'] + ' errors and ' + doc.validatorCache['warnings'] + ' warnings';
+		generatedDocument.title = docTitle;
+
+		// Some CSS for styling the results. Plenty of room for improvement here.
+		var docCSS = generatedDocument.createElement('style');
+		docCSS.appendChild(document.createTextNode('html {margin:0; padding:0; } body{ font: 100%/1.3 Arial, Helvetica, sans-serif; color:#222; background-color: #fff; margin: 1em; padding: 0;} h1 {font-size:1.5em;} li { margin:0 0 1px; padding:0.5em;} p {margin:0;} .info {background:#cff;} .warning {background:#ffc;} .error {background:#fcc;} .type {text-transform:capitalize;}'));
+		docHead.appendChild(docCSS);
+
+		// Create the HTML content of the body – a heading and the list of messages with some elements and class names to enable styling
+		var heading = docBody.appendChild(generatedDocument.createElement('h1'));
+		heading.appendChild(generatedDocument.createTextNode(docTitle));
+
+		var errorList = docBody.appendChild(generatedDocument.createElement('ol'));
+		var message, li;
+		for (var i = 0, l = doc.validatorCache['messages'].length; i < l; i++) {
+			message = doc.validatorCache['messages'][i];
+			li = errorList.appendChild(generatedDocument.createElement('li'));
+			li.className = message['type'] + (message['subType'] ? ' ' + message['subType'] : '');
+			li.innerHTML = '<p><strong class="type">' + message['type'] + ':</strong> ' + message['message'] + '</p>';
+			if (message['lastLine']) {
+				li.innerHTML += '<p class="location">At line <span class="last-line">' + message['lastLine'] + '</span>, column <span class="first-col">' + message['firstColumn'] + '</span></p>';
+			}
+			if (message['extract']) {
+				li.innerHTML += '<p class="extract"><code>' + message['extract'].replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); + '</code></p>';
+			}
+		}
 	};
 
 
