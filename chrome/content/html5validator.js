@@ -19,7 +19,8 @@ var html5validator = function()
 				validatorURL: prefBranch.getCharPref("validatorURL"),
 				domainsWhitelist: domains,
 				debug: prefBranch.getBoolPref("debug"),
-				ignoreXHTMLErrors: prefBranch.getBoolPref("ignoreXHTMLErrors")
+				ignoreXHTMLErrors: prefBranch.getBoolPref("ignoreXHTMLErrors"),
+				allowAccessibilityFeatures: prefBranch.getBoolPref("allowAccessibilityFeatures")
 			};
 		},
 		// observe preferences changes
@@ -311,8 +312,24 @@ var html5validator = function()
 									continue;
 								}
 							}
+							// Do not count errors caused by removed accessibility features.
+							// Currently allows the abbr, longdesc and scope attributes.
+							if (preferences.allowAccessibilityFeatures) {
+								message = response.messages[i];
+								if (message.message.match(/The “abbr” attribute on the “(td|th)” element is obsolete|The “longdesc” attribute on the “img” element is obsolete|The “scope” attribute on the “td” element is obsolete/i)) {
+									continue;
+								}
+							}
 							errors++;
 						} else if (response.messages[i].subType == "warning") {
+							// Do not count warnings caused by removed accessibility features.
+							// Currently allows the summary attribute.
+							if (preferences.allowAccessibilityFeatures) {
+								message = response.messages[i];
+								if (message.message.match(/The “summary” attribute is obsolete/i)) {
+									continue;
+								}
+							}
 							warnings++;
 						}
 					}

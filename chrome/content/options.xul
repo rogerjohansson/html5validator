@@ -13,6 +13,7 @@
 			<preference id="pref-validatorURL" name="extensions.html5validator.validatorURL" type="string"/>
 			<preference id="pref-domainsWhitelist" name="extensions.html5validator.domainsWhitelist" type="string"/>
 			<preference id="pref-ignoreXHTMLErrors" name="extensions.html5validator.ignoreXHTMLErrors" type="bool"/>
+			<preference id="pref-allowAccessibilityFeatures" name="extensions.html5validator.allowAccessibilityFeatures" type="bool"/>
 		</preferences>
 		
 		<grid>
@@ -38,9 +39,8 @@
 					<textbox id="domainsWhitelist" preference="pref-domainsWhitelist" multiline="true" cols="30" rows="10" newlines="stripsurroundingwhitespace" wrap="off"/>
 				</row>
 				<description>If no domains are whilelisted, then all URLs will be validated</description>
-				<row>
-					<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors"/>
-				</row>
+				<checkbox label="Ignore XHTML errors" id="ignoreXHTMLErrors" preference="pref-ignoreXHTMLErrors"/>
+				<checkbox label="Allow HTML 4.01 accessibility features (summary, abbr, longdesc, scope)" id="allowAccessibilityFeatures" preference="pref-allowAccessibilityFeatures"/>
 			</rows>
 		</grid>
 		
