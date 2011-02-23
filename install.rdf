@@ -4,7 +4,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>html5validator@456bereastreet.com</em:id>
 		<em:name>HTML5 Validator</em:name>
-		<em:version>1.4.5</em:version>
+		<em:version>1.5.0</em:version>
 		<em:type>2</em:type>
 		<em:creator>Roger Johansson</em:creator>
 		<em:contributor>Valentin Agachi</em:contributor>
