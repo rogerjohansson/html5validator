@@ -12,3 +12,4 @@ CHANGELOG
 * 1.3.1 - 2011-02-19: FIX: validate all URLs when empty whitelist domain list
 * 1.4 - 2011-02-22 - NEW: option to ignore errors and warnings caused by HTML 4.01 accessibility features made “obsolete” in HTML5
 * 1.4.5 - 2011-02-22 - NEW: option to validate pages only when triggered manually
+* 1.4.6 - 2011-02-23 - NEW: the results page shown when clicking the statusbar icon is generated from the original, cached, validator response

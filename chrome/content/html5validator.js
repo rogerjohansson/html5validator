@@ -313,19 +313,18 @@ var html5validator = function()
 						message,
 						errors = 0, warnings = 0;
 					for (var i = 0; i < messages; i++) {
-						// TODO: Remove hidden errors and warnings from the cached results to prevent them from showing up on the results page.
 						if (response.messages[i].type == "error") {
-							// Do not count errors caused by an XHTML Doctype.
-							// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
 							if (preferences.ignoreXHTMLErrors) {
+								// Do not count errors caused by an XHTML Doctype.
+								// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
 								message = response.messages[i];
 								if ((message.message.match(/^Legacy doctype./i) && message.extract.match(/<!DOCTYPE html PUBLIC \"-\/\/W3C\/\/DTD XHTML 1.(1|0 Strict|0 Transitional)\/\/EN/i)) || message.message.match(/^Attribute “xml:lang” not allowed/i)) {
 									continue;
 								}
 							}
-							// Do not count errors caused by removed accessibility features.
-							// Currently allows the abbr, longdesc and scope attributes.
 							if (preferences.allowAccessibilityFeatures) {
+								// Do not count errors caused by removed accessibility features.
+								// Currently allows the abbr, longdesc and scope attributes.
 								message = response.messages[i];
 								if (message.message.match(/The “abbr” attribute on the “(td|th)” element is obsolete|The “longdesc” attribute on the “img” element is obsolete|The “scope” attribute on the “td” element is obsolete/i)) {
 									continue;
@@ -333,9 +332,9 @@ var html5validator = function()
 							}
 							errors++;
 						} else if (response.messages[i].subType == "warning") {
-							// Do not count warnings caused by removed accessibility features.
-							// Currently allows the summary attribute.
 							if (preferences.allowAccessibilityFeatures) {
+								// Do not count warnings caused by removed accessibility features.
+								// Currently allows the summary attribute.
 								message = response.messages[i];
 								if (message.message.match(/The “summary” attribute is obsolete/i)) {
 									continue;
@@ -425,18 +424,34 @@ var html5validator = function()
 		var message, li;
 		for (var i = 0, l = messages.length; i < l; i++) {
 			message = messages[i];
+			if (preferences.ignoreXHTMLErrors) {
+				// Do not show errors caused by an XHTML Doctype.
+				// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
+				if ((message['message'].match(/^Legacy doctype./i) && message['extract'].match(/<!DOCTYPE html PUBLIC \"-\/\/W3C\/\/DTD XHTML 1.(1|0 Strict|0 Transitional)\/\/EN/i)) || message['message'].match(/^Attribute “xml:lang” not allowed/i)) {
+					continue;
+				}
+			}
+			if (preferences.allowAccessibilityFeatures) {
+				// Do not show errors or warnings caused by removed accessibility features.
+				// Currently allows the abbr, longdesc, summary and scope attributes.
+				if (message['message'].match(/The “abbr” attribute on the “(td|th)” element is obsolete|The “longdesc” attribute on the “img” element is obsolete|The “scope” attribute on the “td” element is obsolete|The “summary” attribute is obsolete/i)) {
+					continue;
+				}
+			}
 			li = errorList.appendChild(generatedDocument.createElement('li'));
 			li.className = message['type'] + (message['subType'] ? ' ' + message['subType'] : '');
-			li.innerHTML = '<p><strong class="type">' + message['type'] + ':</strong> ' + message['message'] + '</p>';
+			li.innerHTML = '<p><strong class="type">' + (message['subType'] ? ' ' + message['subType'] : message['type']) + ':</strong> ' + encodeHTML(message['message']) + '</p>';
 			if (message['lastLine']) {
 				li.innerHTML += '<p class="location">At line <span class="last-line">' + message['lastLine'] + '</span>, column <span class="first-col">' + message['firstColumn'] + '</span></p>';
 			}
 			if (message['extract']) {
-				li.innerHTML += '<p class="extract"><code>' + message['extract'].replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); + '</code></p>';
+				li.innerHTML += '<pre class="extract"><code>' + encodeHTML(message['extract']) + '</code></pre>';
 			}
 		}
+	},
+	encodeHTML = function(html) {
+		return html.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 	};
-
 
 	return {
 		init: function ()
