@@ -9,13 +9,14 @@ body {
 	color:#222;
 	background:#fff;
 }
-h1 {font-size:1.5em;}
-h2 {font-size:1.2em;}
+h1 {font-size:1.5em;margin:0 0 .2em;}
+h2 {font-size:1.2em;margin:0 0 1em;}
 li {
 	padding:.5em;
 	margin:0 0 .2em;
 }
 p, pre {margin:0;}
+pre {white-space:pre-wrap;}
 .info {background:#cff;}
 .warning {background:#ffc;}
 .error {background:#fcc;}
