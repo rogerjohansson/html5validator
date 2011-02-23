@@ -302,7 +302,7 @@ var html5validator = function()
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				// Turn the returned string into a JSON object
-				var response = eval('(' + xhr.responseText + ')');
+				var response = (xhr.responseText.length ? eval('(' + xhr.responseText + ')') : false);
 				if (!response) {
 					// No valid JSON object returned
 					updateStatusBar(0, 0, "errorContactingValidator");
@@ -378,14 +378,14 @@ var html5validator = function()
 			{
 				// On first click there are no cached results - validate, on following clicks - show cached results
 				if (doc.validatorCache && (doc.validatorCache['errors'] || doc.validatorCache['warnings']))
-					showValidationResults();
+					showValidationResults(doc.validatorCache['messages']);
 				else
 					validateDocHTML(window.content, true);
 			}
 			else
 			{
 				if (doc.validatorCache && (doc.validatorCache['errors'] || doc.validatorCache['warnings']))
-					showValidationResults();
+					showValidationResults(doc.validatorCache['messages']);
 			}
 		}
 	},
@@ -393,10 +393,7 @@ var html5validator = function()
 	// Create a new document, open it in a new tab and display the cached validation results.
 	showValidationResults = function(messages)
 	{
-		var doc = getActiveDocument();
-		if (!doc || !doc.validatorCache) {
-			return;
-		}
+		log(messages);
 
 		// Create a new document in a new tab
 		var request = new XMLHttpRequest();
@@ -405,25 +402,28 @@ var html5validator = function()
 		request.send(null);
 		var generatedDocument = window.content.document;
 
-		docBody = generatedDocument.getElementsByTagName('body')[0];
-		docHead = generatedDocument.getElementsByTagName('head')[0];
+		var docBody = generatedDocument.getElementsByTagName('body')[0],
+			docHead = generatedDocument.getElementsByTagName('head')[0];
 
-		docTitle = 'Validation results for ' + doc.URL + ': ' + doc.validatorCache['errors'] + ' errors and ' + doc.validatorCache['warnings'] + ' warnings';
-		generatedDocument.title = docTitle;
+		docTitle = 'Validation results for ' + doc.URL + '<br/>';
+		docTitle += doc.validatorCache['errors'] + ' errors and ' + doc.validatorCache['warnings'] + ' warnings';
+		generatedDocument.title = docTitle.replace('<br/>', ': ');
 
-		// Some CSS for styling the results. Plenty of room for improvement here.
-		var docCSS = generatedDocument.createElement('style');
-		docCSS.appendChild(document.createTextNode('html {margin:0; padding:0; } body{ font: 100%/1.3 Arial, Helvetica, sans-serif; color:#222; background-color: #fff; margin: 1em; padding: 0;} h1 {font-size:1.5em;} li { margin:0 0 1px; padding:0.5em;} p,pre {margin:0;} .info {background:#cff;} .warning {background:#ffc;} .error {background:#fcc;} .type {text-transform:capitalize;}'));
-		docHead.appendChild(docCSS);
+		// Insert styling using CSS file from the extension
+		var linkCSS = generatedDocument.createElement('link');
+		linkCSS.href = 'chrome://html5validator/skin/results.css';
+		linkCSS.rel = 'stylesheet';
+		linkCSS.type = 'text/css';
+		docHead.appendChild(linkCSS);
 
 		// Create the HTML content of the body – a heading and the list of messages with some elements and class names to enable styling
 		var heading = docBody.appendChild(generatedDocument.createElement('h1'));
-		heading.appendChild(generatedDocument.createTextNode(docTitle));
+		heading.innerHTML = docTitle;
 
 		var errorList = docBody.appendChild(generatedDocument.createElement('ol'));
 		var message, li;
-		for (var i = 0, l = doc.validatorCache['messages'].length; i < l; i++) {
-			message = doc.validatorCache['messages'][i];
+		for (var i = 0, l = messages.length; i < l; i++) {
+			message = messages[i];
 			if (preferences.ignoreXHTMLErrors) {
 				// Do not show errors caused by an XHTML Doctype.
 				// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
