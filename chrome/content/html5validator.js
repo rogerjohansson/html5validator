@@ -271,21 +271,16 @@ var html5validator = function()
 				case "running":
 					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
 					statusBarPanel.label = "Validating...";
-					statusBarPanel.tooltipText = "HTML5 Validator: Document not validated";
+					statusBarPanel.tooltipText = "HTML5 Validator: Document currently validating";
 					break;
 				case "notrun":
 					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
 					statusBarPanel.tooltipText = "HTML5 Validator: Document not validated";
 					break;
-				case "errorGettingHTML":
-					statusBarPanel.label = "Error getting HTML";
-					statusBarPanel.src = "chrome://html5validator/skin/html5-error-dimmed.png";
-					statusBarPanel.tooltipText = "HTML5 Validator: Could not get HTML for the current document.";
-					break;
 				case "errorContactingValidator":
 					statusBarPanel.label = "Error validating HTML";
 					statusBarPanel.src = "chrome://html5validator/skin/html5-error-dimmed.png";
-					statusBarPanel.tooltipText = "HTML5 Validator: Could not contact the validator to validate the current document.";
+					statusBarPanel.tooltipText = "HTML5 Validator: Could not contact the validator";
 					break;
 				default:
 					statusBarPanel.src = "chrome://html5validator/skin/html5-ok.png";
