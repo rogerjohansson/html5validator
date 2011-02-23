@@ -378,22 +378,26 @@ var html5validator = function()
 			{
 				// On first click there are no cached results - validate, on following clicks - show cached results
 				if (doc.validatorCache && (doc.validatorCache['errors'] || doc.validatorCache['warnings']))
-					showValidationResults(doc.validatorCache['messages']);
+					showValidationResults();
 				else
 					validateDocHTML(window.content, true);
 			}
 			else
 			{
 				if (doc.validatorCache && (doc.validatorCache['errors'] || doc.validatorCache['warnings']))
-					showValidationResults(doc.validatorCache['messages']);
+					showValidationResults();
 			}
 		}
 	},
 
 	// Create a new document, open it in a new tab and display the cached validation results.
-	showValidationResults = function(messages)
+	showValidationResults = function()
 	{
-		log(messages);
+		var doc = getActiveDocument();
+		if (!doc || !doc.validatorCache) {
+			return;
+		}
+		log(doc.URL);
 
 		// Create a new document in a new tab
 		var request = new XMLHttpRequest();
@@ -405,9 +409,9 @@ var html5validator = function()
 		var docBody = generatedDocument.getElementsByTagName('body')[0],
 			docHead = generatedDocument.getElementsByTagName('head')[0];
 
-		docTitle = 'Validation results for ' + doc.URL + '<br/>';
-		docTitle += doc.validatorCache['errors'] + ' errors and ' + doc.validatorCache['warnings'] + ' warnings';
-		generatedDocument.title = docTitle.replace('<br/>', ': ');
+		var docTitle = 'Validation results for ' + doc.URL;
+		var errorsAndWarnings = doc.validatorCache['errors'] + ' errors and ' + doc.validatorCache['warnings'] + ' warnings';
+		generatedDocument.title = docTitle + ': ' + errorsAndWarnings;
 
 		// Insert styling using CSS file from the extension
 		var linkCSS = generatedDocument.createElement('link');
@@ -417,13 +421,15 @@ var html5validator = function()
 		docHead.appendChild(linkCSS);
 
 		// Create the HTML content of the body – a heading and the list of messages with some elements and class names to enable styling
-		var heading = docBody.appendChild(generatedDocument.createElement('h1'));
-		heading.innerHTML = docTitle;
+		var h1 = docBody.appendChild(generatedDocument.createElement('h1'));
+		h1.innerHTML = docTitle;
+		var h2 = docBody.appendChild(generatedDocument.createElement('h2'));
+		h2.innerHTML = errorsAndWarnings;
 
 		var errorList = docBody.appendChild(generatedDocument.createElement('ol'));
 		var message, li;
-		for (var i = 0, l = messages.length; i < l; i++) {
-			message = messages[i];
+		for (var i = 0, l = doc.validatorCache['messages'].length; i < l; i++) {
+			message = doc.validatorCache['messages'][i];
 			if (preferences.ignoreXHTMLErrors) {
 				// Do not show errors caused by an XHTML Doctype.
 				// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
