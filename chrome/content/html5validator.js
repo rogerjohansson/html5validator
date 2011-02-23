@@ -63,7 +63,6 @@ var html5validator = function()
 
 		onLocationChange: function(aProgress, aRequest, aURI)
 		{
-			log('onLocationChange()');
 			updateStatusBar(0, 0, "notrun");
 			validateDocHTML(window.content, false);
 		},
@@ -392,7 +391,7 @@ var html5validator = function()
 		if (!doc || !doc.validatorCache) {
 			return;
 		}
-		log(doc.URL);
+		log('showValidationResults() ' + doc.URL);
 
 		// Create a new document in a new tab
 		var request = new XMLHttpRequest();
@@ -405,7 +404,7 @@ var html5validator = function()
 			docHead = generatedDocument.getElementsByTagName('head')[0];
 
 		var docTitle = 'Validation results for ' + doc.URL;
-		var errorsAndWarnings = doc.validatorCache['errors'] + ' errors and ' + doc.validatorCache['warnings'] + ' warnings';
+		var errorsAndWarnings = doc.validatorCache.errors + ' errors and ' + doc.validatorCache.warnings + ' warnings';
 		generatedDocument.title = docTitle + ': ' + errorsAndWarnings;
 
 		// Insert styling using CSS file from the extension
@@ -422,9 +421,9 @@ var html5validator = function()
 		h2.innerHTML = errorsAndWarnings;
 
 		var errorList = docBody.appendChild(generatedDocument.createElement('ol'));
-		var message, li;
-		for (var i = 0, l = doc.validatorCache['messages'].length; i < l; i++) {
-			message = doc.validatorCache['messages'][i];
+		var message, li, ext, st, len;
+		for (var i = 0, l = doc.validatorCache.messages.length; i < l; i++) {
+			message = doc.validatorCache.messages[i];
 			if (preferences.ignoreXHTMLErrors) {
 				// Do not show errors caused by an XHTML Doctype.
 				// Not foolproof but matches XHTML 1.0 Strict/Transitional and 1.1 as long as no XML declaration is used.
@@ -446,7 +445,17 @@ var html5validator = function()
 				li.innerHTML += '<p class="location">At line <span class="last-line">' + message['lastLine'] + '</span>, column <span class="first-col">' + message['firstColumn'] + '</span></p>';
 			}
 			if (message['extract']) {
-				li.innerHTML += '<pre class="extract"><code>' + encodeHTML(message['extract']) + '</code></pre>';
+				ext = message['extract'];
+				if ((message['hiliteStart'] >= 0) && message['hiliteLength'])
+				{
+					st = message['hiliteStart'];
+					len = message['hiliteLength'];
+					ext = ext.substr(0, st) + '~^~' + ext.substr(st, len) + '~$~' + ext.substr(st + len);
+					ext = encodeHTML(ext).replace('~^~', '<span class="highlight">').replace('~$~', '</span>');
+				}
+				else
+					ext = encodeHTML(ext);
+				li.innerHTML += '<pre class="extract"><code>' + ext + '</code></pre>';
 			}
 		}
 	},
