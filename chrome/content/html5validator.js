@@ -117,7 +117,7 @@ var html5validator = function()
 	},
 
 
-	// adapted from "Html Validator" extension
+	// Adapted from the "HTML Validator" extension by Marc Gueury (http://users.skynet.be/mgueury/mozilla/)
 	validateDocHTML = function(frame, triggered)
 	{
 		if (!frame.document)
@@ -158,7 +158,7 @@ var html5validator = function()
 		return window.content.document;
 	},
 	
-	// adapted from "Html Validator" extension
+	// Adapted from the "HTML Validator" extension by Marc Gueury (http://users.skynet.be/mgueury/mozilla/)
 	getHTMLFromCache = function(doc)
 	{     
 		var isLoading = document.getElementById("content").mCurrentBrowser.webProgress.isLoadingDocument;

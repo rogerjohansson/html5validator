@@ -453,5 +453,5 @@ EXHIBIT A -Mozilla Public License.
 
 	The Original Code also incorporates parts of code from Multiple Licensed source files, which contain their own license terms compatible with Mozilla Public License Version 1.1:
 
-	* HTML Validator, Copyright (C) 2004-2005 by Marc Gueury
+	* HTML Validator, Copyright (C) 2004-2005 by Marc Gueury, http://users.skynet.be/mgueury/mozilla/
 
