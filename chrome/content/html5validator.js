@@ -403,6 +403,9 @@ var html5validator = function()
 		var docBody = generatedDocument.getElementsByTagName('body')[0],
 			docHead = generatedDocument.getElementsByTagName('head')[0];
 
+		// Allow for custom user styling
+		docBody.id = 'html5validator-results';
+
 		var docTitle = 'Validation results for ' + doc.URL;
 		var errorsAndWarnings = doc.validatorCache.errors + ' errors and ' + doc.validatorCache.warnings + ' warnings';
 		generatedDocument.title = docTitle + ': ' + errorsAndWarnings;
@@ -420,7 +423,7 @@ var html5validator = function()
 		var h2 = docBody.appendChild(generatedDocument.createElement('h2'));
 		h2.innerHTML = errorsAndWarnings;
 
-		var errorList = docBody.appendChild(generatedDocument.createElement('ol'));
+		var errorList = generatedDocument.createElement('ol');
 		var message, li, ext, st, len;
 		for (var i = 0, l = doc.validatorCache.messages.length; i < l; i++) {
 			message = doc.validatorCache.messages[i];
@@ -446,18 +449,20 @@ var html5validator = function()
 			}
 			if (message['extract']) {
 				ext = message['extract'];
+				// If highlight positions are found, insert wrap the highlighted code
 				if ((message['hiliteStart'] >= 0) && message['hiliteLength'])
 				{
 					st = message['hiliteStart'];
 					len = message['hiliteLength'];
 					ext = ext.substr(0, st) + '~^~' + ext.substr(st, len) + '~$~' + ext.substr(st + len);
-					ext = encodeHTML(ext).replace('~^~', '<span class="highlight">').replace('~$~', '</span>');
+					ext = encodeHTML(ext).replace('~^~', '<strong class="highlight">').replace('~$~', '</strong>');
 				}
 				else
 					ext = encodeHTML(ext);
 				li.innerHTML += '<pre class="extract"><code>' + ext + '</code></pre>';
 			}
 		}
+		docBody.appendChild(errorList);
 	},
 	encodeHTML = function(html) {
 		return html.replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");

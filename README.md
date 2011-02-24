@@ -14,4 +14,4 @@ CHANGELOG
 * 1.4.5 - 2011-02-22 - NEW: option to validate pages only when triggered manually
 * 1.5.0 - 2011-02-23 - NEW: the results page shown when clicking the statusbar icon is generated from the original, cached, validator response
 * 1.5.1 - 2011-02-23 - FIX: Changed how results are accessed
-* 1.5.2 - 2011-02-23 - FIX: higlighted code in results tab
+* 1.5.2 - 2011-02-23 - FIX: highlighted code in results tab
