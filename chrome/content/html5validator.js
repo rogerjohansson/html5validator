@@ -445,7 +445,7 @@ var html5validator = function()
 			li.className = message['type'] + (message['subType'] ? ' ' + message['subType'] : '');
 			li.innerHTML = '<p><strong class="type">' + (message['subType'] ? ' ' + message['subType'] : message['type']) + ':</strong> ' + encodeHTML(message['message']) + '</p>';
 			if (message['lastLine']) {
-				li.innerHTML += '<p class="location">At line <span class="last-line">' + message['lastLine'] + '</span>, column <span class="first-col">' + message['firstColumn'] + '</span></p>';
+				li.innerHTML += '<p class="location">At line <span class="last-line">' + message['lastLine'] + '</span>' + (message['firstColumn'] ? ', column <span class="first-col">' + message['firstColumn'] : '') + '</span></p>';
 			}
 			if (message['extract']) {
 				ext = message['extract'];
