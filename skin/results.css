@@ -9,11 +9,11 @@ body {
 	color:#222;
 	background:#fff;
 }
-h1 {font-size:1.5em;margin:0 0 .2em;}
+h1 {font-size:1.5em;margin:0 0 0.2em;}
 h2 {font-size:1.2em;margin:0 0 1em;}
 li {
-	padding:.5em;
-	margin:0 0 .2em;
+	padding:0.5em;
+	margin:0 0 0.2em;
 }
 p, pre {margin:0;}
 pre {white-space:pre-wrap;}
@@ -21,5 +21,9 @@ pre {white-space:pre-wrap;}
 .warning {background:#ffc;}
 .error {background:#fcc;}
 .type {text-transform:capitalize;}
-.last-line, .first-col {font:bold 1.1em monospace;background:rgba(255,255,255,.25);}
-.highlight {background:rgba(255,255,255,.6);}
+.last-line,
+.first-col {
+	background:rgba(255,255,255,0.25);
+	font:bold 1.1em monospace;
+}
+.highlight {background:rgba(255,255,255,0.6);}

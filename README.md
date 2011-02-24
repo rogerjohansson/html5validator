@@ -15,3 +15,4 @@ CHANGELOG
 * 1.5.0 - 2011-02-23 - NEW: the results page shown when clicking the statusbar icon is generated from the original, cached, validator response
 * 1.5.1 - 2011-02-23 - FIX: Changed how results are accessed
 * 1.5.2 - 2011-02-23 - FIX: higlighted code in results tab
+* 1.5.3 - 2011-02-24 - FIX: Changed element used for code highlighting, added check for undefined column numbers
