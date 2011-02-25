@@ -5,6 +5,7 @@
 	<description>html5validator add-on build script</description>
 
 	<property name="src" location="."/>
+	<property name="build" location="build"/>
 	<property name="dist" location="xpi"/>
 
 	<!-- determine verion number based on install.rdf -->
@@ -23,24 +24,45 @@
 		<echo>${version}</echo>
 	</target>
 
+	<target name="copy-build" depends="version">
+		<mkdir dir="${build}"/>
+
+		<copy todir="${build}">
+			<fileset dir="${src}">
+				<exclude name=".git/**"/>
+				<exclude name="xpi/**"/>
+				<exclude name="build/**"/>
+				<exclude name=".gitignore"/>
+				<exclude name="build.xml"/>
+				<exclude name="README.md"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean-build" depends="copy-build">
+		<replaceregexp byline="true">
+			<regexp pattern="\s+log\(.+\);"/>
+			<substitution expression=""/>
+			<fileset dir="${build}">
+				<include name="**/*.js"/>
+			</fileset>
+		</replaceregexp>
+	</target>
+
 	<!-- archive sources into .xpi file -->
-	<target name="archive" depends="version" description="archive the add-on">
+	<target name="archive" depends="clean-build" description="archive the add-on">
 		<mkdir dir="${dist}"/>
 
 		<delete file="${dist}/html5validator-${version}.xpi" quiet="true"/>
 
 		<zip destfile="${dist}/html5validator-${version}.xpi" level="9">
-			<fileset dir="${src}">
-				<exclude name=".git/**"/>
-				<exclude name="xpi/**"/>
-				<exclude name=".gitignore"/>
-				<exclude name="build.xml"/>
-				<exclude name="README.md"/>
-			</fileset>
+			<fileset dir="${build}"/>
 		</zip>
 	</target>
 
 	<!-- main build action -->
-	<target name="build" depends="archive"></target>
+	<target name="build" depends="archive">
+		<delete dir="${build}"/>
+	</target>
 
 </project>
