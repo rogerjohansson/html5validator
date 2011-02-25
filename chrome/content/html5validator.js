@@ -95,7 +95,7 @@ var html5validator = function()
 	
 	isWhitelistDomain = function(url)
 	{
-		log('isWhitelistDomain() ' + url + ' - ' + preferences.domainsWhitelist.length);
+		//log('isWhitelistDomain() ' + url + ' - ' + preferences.domainsWhitelist.length);
 
 		if (!url.length || url.match(/^about:/) || url == preferences.validatorURL)
 			return false;
@@ -107,9 +107,15 @@ var html5validator = function()
 		for (var i = 0; i < preferences.domainsWhitelist.length; i++)
 		{
 			var d = preferences.domainsWhitelist[i];
-			if (d == url.replace('://www.', '://').substr(0, d.length))
+			if (d.indexOf('*') > 0) {
+				// d contains a wildcard, so change it to a regexp
+				d = new RegExp(d.replace('*', '(.*?)'), "i");
+				if (url.match(d)) {
+					return true;
+				}
+			} else if (d == url.replace('://www.', '://').substr(0, d.length)) {
 				return true;
-
+			}
 		}
 
 		return false;

@@ -37,6 +37,7 @@
 								<description>Enter one domain per line</description>
 								<description>http:// prefix is optional</description>
 								<description>https:// prefix is supported</description>
+								<description>Use '*' as a wildcard, eg. *.local</description>
 							</vbox>
 						</vbox>
 						<textbox id="domainsWhitelist" preference="pref-domainsWhitelist" multiline="true" cols="30" rows="10" newlines="stripsurroundingwhitespace" wrap="off"/>
