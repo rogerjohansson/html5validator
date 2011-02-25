@@ -12,3 +12,4 @@ CHANGELOG
 * 1.5.2 - 2011-02-23 - FIX: highlighted code in results tab
 * 1.5.3 - 2011-02-24 - FIX: Changed element used for code highlighting, added check for undefined column numbers, added body ID to results tab
 * 1.5.4 - 2011-02-25 - NEW: Allow wildcards in domain whitelist
+* 1.5.5 - 2011-02-25 - FIX: Improved status info, issue #3

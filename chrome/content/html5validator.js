@@ -63,7 +63,7 @@ var html5validator = function()
 
 		onLocationChange: function(aProgress, aRequest, aURI)
 		{
-			updateStatusBar(0, 0, "notrun");
+			updateStatusBar(0, 0, "reset");
 			validateDocHTML(window.content, false);
 		},
 
@@ -95,8 +95,6 @@ var html5validator = function()
 	
 	isWhitelistDomain = function(url)
 	{
-		//log('isWhitelistDomain() ' + url + ' - ' + preferences.domainsWhitelist.length);
-
 		if (!url.length || url.match(/^about:/) || url == preferences.validatorURL)
 			return false;
 
@@ -135,16 +133,20 @@ var html5validator = function()
 		{
 			var cache = activeDocument.validatorCache;
 
-			updateStatusBar(cache['errors'], cache['warnings']);
+			updateStatusBar(cache['errors'], cache['warnings'], 'results');
 		}
 	    else
 		{
 			if (preferences.useTrigger && !triggered)
+			{
+				if (isWhitelistDomain(url))
+					updateStatusBar(0, 0, 'domainWhitelist');
 				return;
+			}
 
 			if (!isWhitelistDomain(url))
 			{
-				updateStatusBar(0, 0, "notrun");
+				updateStatusBar(0, 0, 'domainBlacklist');
 				return;
 			}
 			else
@@ -266,7 +268,7 @@ var html5validator = function()
 			statusBarPanel.label = errorText;
 			statusBarPanel.src = "chrome://html5validator/skin/html5-error-red.png";
 			statusBarPanel.className = "statusbarpanel-iconic-text errors";
-			statusBarPanel.tooltipText = "HTML5 Validator: Click to show validation details in a new window";
+			statusBarPanel.tooltipText = "HTML5 Validator: Click to show validation details in a new tab";
 		}
 		else
 		{
@@ -278,18 +280,31 @@ var html5validator = function()
 					statusBarPanel.label = "Validating...";
 					statusBarPanel.tooltipText = "HTML5 Validator: Document currently validating";
 					break;
-				case "notrun":
-					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
-					statusBarPanel.tooltipText = "HTML5 Validator: Document not validated";
+				case "reset":
+					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed-more.png";
+					statusBarPanel.tooltipText = "HTML5 Validator: Idle";
 					break;
-				case "errorContactingValidator":
-					statusBarPanel.label = "Error validating HTML";
+				case "domainWhitelist":
+					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
+					statusBarPanel.label = "Click to validate";
+					statusBarPanel.tooltipText = "HTML5 Validator: Domain in whitelist, click to validate";
+					break;
+				case "domainBlacklist":
+					statusBarPanel.src = "chrome://html5validator/skin/html5-dimmed.png";
+					statusBarPanel.tooltipText = "HTML5 Validator: Domain outside whitelist";
+					if (preferences.useTrigger) {
+						statusBarPanel.label = "Domain not in whitelist";
+					}
+					break;
+				case "errorValidator":
+					statusBarPanel.label = "Validator error";
 					statusBarPanel.src = "chrome://html5validator/skin/html5-error-dimmed.png";
 					statusBarPanel.tooltipText = "HTML5 Validator: Could not contact the validator";
 					break;
-				default:
+				case "results":
 					statusBarPanel.src = "chrome://html5validator/skin/html5-ok.png";
-					statusBarPanel.tooltipText = "HTML5 Validator: No errors!";
+					statusBarPanel.tooltipText = "HTML5 Validator: No errors";
+					break;
 			}
 		}
 	},
@@ -305,7 +320,7 @@ var html5validator = function()
 				var response = (xhr.responseText.length ? eval('(' + xhr.responseText + ')') : false);
 				if (!response) {
 					// No valid JSON object returned
-					updateStatusBar(0, 0, "errorContactingValidator");
+					updateStatusBar(0, 0, "errorValidator");
 				}
 				else {
 					// Check how many errors and warnings were returned
@@ -343,7 +358,7 @@ var html5validator = function()
 							warnings++;
 						}
 					}
-					updateStatusBar(errors, warnings);
+					updateStatusBar(errors, warnings, "results");
 
 					activeDocument.validatorCache = {
 						"messages": response.messages,
@@ -356,7 +371,7 @@ var html5validator = function()
 
 		// If we couldn't validate the document (validator not running, network down, etc.)
 		xhr.onerror = function(){
-			updateStatusBar(0, 0, "errorContactingValidator");
+			updateStatusBar(0, 0, "errorValidator");
 		};
 
 		// Send document to validator and tell it to return results in JSON format
@@ -487,6 +502,8 @@ var html5validator = function()
 
 			statusBarPanel = document.getElementById('html5validator-status-bar');
 			statusBarPanel.addEventListener("click", statusBarPanelClick, false);
+
+			updateStatusBar(0, 0, 'reset');
 
 			preferencesObserver.register();
 		},
