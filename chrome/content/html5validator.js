@@ -317,7 +317,7 @@ var html5validator = function()
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				// Turn the returned string into a JSON object
-				var response = (xhr.responseText.length ? eval('(' + xhr.responseText + ')') : false);
+				var response = (xhr.responseText.length ? JSON.parse(xhr.responseText) : false);
 				if (!response) {
 					// No valid JSON object returned
 					updateStatusBar(0, 0, "errorValidator");
@@ -412,7 +412,6 @@ var html5validator = function()
 		if (!doc || !doc.validatorCache) {
 			return;
 		}
-		log('showValidationResults() ' + doc.URL);
 
 		// Create a new document in a new tab
 		var request = new XMLHttpRequest();
