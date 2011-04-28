@@ -16,7 +16,7 @@
 					<param type="regexp" value="em:version"/>
 				</filterreader>
 				<tokenfilter>
-					<replaceregex pattern="([^0-9\.]+)" replace="" flags="gi"/>
+					<replaceregex pattern="([^0-9\.b]+)" replace="" flags="gi"/>
 				</tokenfilter>
 				 <striplinebreaks />
 			</filterchain>
